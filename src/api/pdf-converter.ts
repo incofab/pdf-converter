@@ -12,6 +12,7 @@ interface ResponseType {
 router
   .all<{}, ResponseType | string | Buffer>("/", async (req, res) => {
     const url = String(req.query.url);
+    const pdfName = String(req.query.name ?? "generated.pdf");
     const urlRegex = /^(ftp|http|https):\/\/[^ "]+$/;
     if (!urlRegex.test(url)) {
       return res.status(400).json("Invalid URL format");
@@ -22,6 +23,12 @@ router
     try {
       browser = await puppeteer.launch({
         headless: NODE_ENV !== "development",
+        args: [
+          "--no-sandbox",
+          "--disable-setuid-sandbox",
+          "--disable-dev-shm-usage", // optional, helps with /dev/shm issues
+        ],
+        timeout: 60_000, // 60 seconds
       });
       const page = await browser.newPage();
       await page.goto(url, { waitUntil: "networkidle2" });
@@ -31,10 +38,7 @@ router
       // res.json({ path: path, message: "Page pdf collected" });
 
       res.setHeader("Content-Type", "application/pdf");
-      res.setHeader(
-        "Content-Disposition",
-        `attachment; filename=${encodeURIComponent("generated.pdf")}`
-      );
+      res.setHeader("Content-Disposition", `attachment; filename=${encodeURIComponent(pdfName)}`);
       res.send(pdfBuffer);
     } catch (error) {
       console.error("Error generating PDF:", error);
