@@ -1,6 +1,7 @@
 import fs from "fs";
 import { getBrowser, pdfFileUrl, pdfOutputPath } from "../util/util";
 import express from "express";
+import path from "path";
 
 export default async function htmlToPdf(req: express.Request, res: express.Response) {
   const { html, name } = req.body;
@@ -23,6 +24,10 @@ export default async function htmlToPdf(req: express.Request, res: express.Respo
       success: true,
       url: pdfFileUrl(req, fileName),
     });
+  }
+
+  if (!fs.existsSync(path.dirname(pdfPath))) {
+    fs.mkdirSync(path.dirname(pdfPath));
   }
 
   let browser;

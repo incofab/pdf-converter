@@ -1,4 +1,4 @@
 - On the server, do a `git pull`
-- Run `npm build` to compile (Or build locally and copy to the dist folder)
-- If you're testing, run `npm start`
+- Run `npm run build` to compile (Or build locally and copy to the dist folder)
+- If you're testing, run `npm run dev`
 - For long lasting, run `pm2 start dist/src/index.js --name pdf-converter`
