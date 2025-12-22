@@ -1,6 +1,8 @@
 import express from "express";
 import path from "path";
 import puppeteer from "puppeteer";
+import htmlToPdf from "./html-to-pdf";
+import { getBrowser } from "../util/util";
 
 const { NODE_ENV = "" } = process.env;
 const router = express.Router();
@@ -21,15 +23,16 @@ router
 
     let browser = null;
     try {
-      browser = await puppeteer.launch({
-        headless: NODE_ENV !== "development",
-        args: [
-          "--no-sandbox",
-          "--disable-setuid-sandbox",
-          "--disable-dev-shm-usage", // optional, helps with /dev/shm issues
-        ],
-        timeout: 60_000, // 60 seconds
-      });
+      browser = await getBrowser();
+      // puppeteer.launch({
+      //   headless: NODE_ENV !== "development",
+      //   args: [
+      //     "--no-sandbox",
+      //     "--disable-setuid-sandbox",
+      //     "--disable-dev-shm-usage", // optional, helps with /dev/shm issues
+      //   ],
+      //   timeout: 60_000, // 60 seconds
+      // });
       const page = await browser.newPage();
       await page.goto(url, { waitUntil: "networkidle2" });
 
@@ -64,6 +67,12 @@ router
         res.status(500).send("Internal Server Error " + err);
       }
     });
-  });
+  })
+  // .all("/html-to-pdf", (req, res) => {
+  //   return res.json({
+  //     message: "HTML content here",
+  //   });
+  // });
+  .all("/html-to-pdf", htmlToPdf);
 
 export default router;
