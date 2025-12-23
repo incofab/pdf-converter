@@ -17,6 +17,9 @@ export async function getBrowser() {
 
 export const pdfFolder = path.join(__dirname, "../pdfs");
 export function pdfOutputPath(filename: string) {
+  if (!fs.existsSync(pdfFolder)) {
+    fs.mkdirSync(pdfFolder);
+  }
   return path.join(pdfFolder, filename);
 }
 export function baseUrl(req: express.Request) {

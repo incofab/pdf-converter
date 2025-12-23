@@ -1,11 +1,12 @@
 import express from "express";
 import path from "path";
-import puppeteer from "puppeteer";
-import htmlToPdf from "./html-to-pdf";
 import { getBrowser } from "../util/util";
+import multer from "multer";
+import { fileToPdf, htmlToPdf } from "./html-to-pdf";
 
-const { NODE_ENV = "" } = process.env;
 const router = express.Router();
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 interface ResponseType {
   path?: string;
@@ -73,6 +74,7 @@ router
   //     message: "HTML content here",
   //   });
   // });
-  .all("/html-to-pdf", htmlToPdf);
+  .all("/html-to-pdf", htmlToPdf)
+  .all("/file-to-pdf", upload.single("file"), fileToPdf);
 
 export default router;

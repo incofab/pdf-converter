@@ -15,6 +15,8 @@ app.use(helmet());
 app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json({ limit: "10mb" }));
+// Increase limit for URL-encoded data (common for form submissions)
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
 // app.use("/pdfs", express.static(path.join(__dirname, "pdfs")));
 app.get("/pdfs/:file", (req, res) => {

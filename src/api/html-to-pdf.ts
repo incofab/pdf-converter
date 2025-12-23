@@ -1,21 +1,39 @@
 import fs from "fs";
 import { getBrowser, pdfFileUrl, pdfOutputPath } from "../util/util";
 import express from "express";
-import path from "path";
 
-export default async function htmlToPdf(req: express.Request, res: express.Response) {
+export async function htmlToPdf(req: express.Request, res: express.Response) {
   const { html, name } = req.body;
   // return res.json({
   //   message: `HTML content here 2 3 4 ${html}`,
   // });
+  const fileName = name ?? `${Math.random()}.pdf`;
+  return processHtmlToPdf(html, fileName, req, res);
+}
 
+export async function fileToPdf(req: express.Request, res: express.Response) {
+  const { name } = req.body;
+  if (!req.file) {
+    return res.status(400).json({ message: "No file uploaded" });
+  }
+
+  // 1. Read file as string
+  const htmlString = req.file.buffer.toString("utf-8");
+  return processHtmlToPdf(htmlString, name, req, res);
+}
+
+async function processHtmlToPdf(
+  html: string,
+  fileName: string,
+  req: express.Request,
+  res: express.Response
+) {
   if (!html) {
     return res.status(400).json({
       message: "HTML content is required",
     });
   }
 
-  const fileName = name ?? `${Math.random()}.pdf`;
   const pdfPath = pdfOutputPath(fileName);
 
   if (fs.existsSync(pdfPath)) {
@@ -24,10 +42,6 @@ export default async function htmlToPdf(req: express.Request, res: express.Respo
       success: true,
       url: pdfFileUrl(req, fileName),
     });
-  }
-
-  if (!fs.existsSync(path.dirname(pdfPath))) {
-    fs.mkdirSync(path.dirname(pdfPath));
   }
 
   let browser;
@@ -47,20 +61,17 @@ export default async function htmlToPdf(req: express.Request, res: express.Respo
       printBackground: true,
     });
 
-    await browser.close();
-
     return res.json({
       success: true,
       url: pdfFileUrl(req, fileName),
     });
   } catch (error) {
-    if (browser) await browser.close();
-
     console.error(error);
-
     return res.status(500).json({
       success: false,
       message: "Failed to generate PDF",
     });
+  } finally {
+    await browser?.close();
   }
 }
