@@ -13,9 +13,9 @@ export async function getBrowser() {
       "--single-process",
       "--no-zygote",
     ],
-    executablePath: isProduction()
-      ? process.env.PUPPETEER_EXECUTABLE_PATH
-      : puppeteer.executablePath(),
+    // executablePath: isProduction()
+    //   ? process.env.PUPPETEER_EXECUTABLE_PATH
+    //   : puppeteer.executablePath(),
     timeout: 60_000, // 60 seconds
   });
 }
