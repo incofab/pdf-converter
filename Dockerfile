@@ -1,4 +1,3 @@
-# https://www.youtube.com/watch?v=6cm6G78ZDmM&t=817s
 FROM ghcr.io/puppeteer/puppeteer:21.6.1
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
@@ -7,6 +6,11 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
 WORKDIR /usr/src/app
 
 COPY package*.json ./
+
 RUN npm ci
+
 COPY . .
-CMD [ "ts-node", "src/index.ts" ]
+
+RUN npm run build
+
+CMD [ "node", "dist/src/index.js" ]
